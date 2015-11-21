@@ -1,25 +1,3 @@
-// const combineReducers = reducers => (prevState, action, payload) =>
-//   Object.assign.apply(null, Object.keys(reducers).map(key =>
-//     ({ [key]: reducers[key](prevState, action, payload) })));
-
-
-
-
-
-// const connect = mapStuff =>
-
-
-// const ConnectedCounter = connect({
-//   actions: {
-//     decrement: counterActions.DECREMENT,
-//     increment: counterActions.INCREMENT,
-//   },
-//   state: state => ({
-//     value: state
-//   }),
-// })(Counter);
-
-
 'use strict';
 
 
@@ -65,9 +43,16 @@ const createReducer = (initialState, handlers) => (prevState, action, payload) =
 };
 
 
-const counterReducer = createReducer(0, ({
-  [DECREMENT]: state => state - 1,
-  [INCREMENT]: state => state + 1,
+function setAt(arr, i, v) {
+  const copy = arr.slice();
+  copy[i] = v;
+  return copy;
+}
+
+
+const counterPairReducer = createReducer([0, 0], ({
+  [DECREMENT]: (state, i) => setAt(state, i, state[i] - 1),
+  [INCREMENT]: (state, i) => setAt(state, i, state[i] + 1),
 }));
 
 
@@ -77,6 +62,13 @@ function replaceChildren(el, newNode) {
   }
   el.appendChild(newNode);
 }
+
+
+const Pair = connect => state =>
+  div({}, [
+    Counter(action => () => connect(action)(0))(state[0]),
+    Counter(action => () => connect(action)(1))(state[1]),
+  ]);
 
 
 function render(reducer, Component, el) {
@@ -95,4 +87,4 @@ function render(reducer, Component, el) {
 }
 
 
-render(counterReducer, Counter, document.getElementById('app'));
+render(counterPairReducer, Pair, document.getElementById('app'));
