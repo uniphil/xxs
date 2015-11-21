@@ -6,10 +6,12 @@ const isHandler = attr => attr.startsWith('on');
 
 const d = name => (attrs, children) => {
   const el = document.createElement(name);
-  Object.keys(attrs).forEach(attr =>
-    attr.startsWith('on') ?
-      el.addEventListener(attr.slice(2).toLowerCase(), attrs[attr]) :
-      el.setAttribute(attr, attrs[attr]));
+  Object.keys(attrs)
+    .filter(attr => !!attrs[attr])
+    .forEach(attr =>
+      attr.startsWith('on') ?
+        el.addEventListener(attr.slice(2).toLowerCase(), attrs[attr]) :
+        el.setAttribute(attr, attrs[attr]));
   children.forEach(child =>
     el.appendChild(child));
   return el;
@@ -19,7 +21,8 @@ const t = s => document.createTextNode(s);
 const div = d('div');
 const button = d('button');
 
-
+const ADD_COUNTER = Symbol('ADD_COUNTER');
+const REMOVE_COUNTER = Symbol('REMOVE_COUNTER');
 const INCREMENT = Symbol('INCREMENT');
 const DECREMENT = Symbol('DECREMENT');
 
@@ -50,7 +53,16 @@ function setAt(arr, i, v) {
 }
 
 
-const counterPairReducer = createReducer([0, 0], ({
+function pop(arr) {
+  const copy = arr.slice();
+  copy.pop();
+  return copy;
+}
+
+
+const countersReducer = createReducer([], ({
+  [ADD_COUNTER]: state => state.concat([0]),
+  [REMOVE_COUNTER]: state => pop(state),
   [DECREMENT]: (state, i) => setAt(state, i, state[i] - 1),
   [INCREMENT]: (state, i) => setAt(state, i, state[i] + 1),
 }));
@@ -64,10 +76,19 @@ function replaceChildren(el, newNode) {
 }
 
 
-const Pair = connect => state =>
+const Counters = connect => state =>
   div({}, [
-    Counter(action => () => connect(action)(0))(state[0]),
-    Counter(action => () => connect(action)(1))(state[1]),
+    div({}, [
+      button({
+        onClick: connect(REMOVE_COUNTER),
+        disabled: state.length < 1,
+      }, [t('remove')]),
+      button({
+        onClick: connect(ADD_COUNTER)
+      }, [t('add')]),
+    ]),
+    div({}, state.map((count, i) =>
+      Counter(action => () => connect(action)(i))(state[i]))),
   ]);
 
 
@@ -87,4 +108,4 @@ function render(reducer, Component, el) {
 }
 
 
-render(counterPairReducer, Pair, document.getElementById('app'));
+render(countersReducer, Counters, document.getElementById('app'));
