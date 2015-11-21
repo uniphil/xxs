@@ -23,15 +23,15 @@
 'use strict';
 
 
-// const isHandler =
+const isHandler = attr => attr.startsWith('on');
 
 
-const d = name => (attrs, handlers, children) => {
+const d = name => (attrs, children) => {
   const el = document.createElement(name);
   Object.keys(attrs).forEach(attr =>
-    el.setAttribute(attr, attrs[attr]));
-  Object.keys(handlers).forEach(handler =>
-    el.addEventListener(handler, handlers[handler]));
+    attr.startsWith('on') ?
+      el.addEventListener(attr.slice(2).toLowerCase(), attrs[attr]) :
+      el.setAttribute(attr, attrs[attr]));
   children.forEach(child =>
     el.appendChild(child));
   return el;
@@ -47,11 +47,11 @@ const DECREMENT = Symbol('DECREMENT');
 
 
 const Counter = connect => state =>
-  div({}, {}, [
-    button({}, { click: connect(DECREMENT) }, [
+  div({}, [
+    button({ onClick: connect(DECREMENT) }, [
       t('-')]),
     t(state),
-    button({}, {click: connect(INCREMENT) }, [
+    button({ onClick: connect(INCREMENT) }, [
       t('+')]),
   ]);
 
