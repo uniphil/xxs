@@ -3,6 +3,7 @@
 
 const ADD_COUNTER = Symbol('ADD_COUNTER');
 const REMOVE_COUNTER = Symbol('REMOVE_COUNTER');
+const WRAP_COUNTER = Symbol('WRAP_COUNTER');
 const INCREMENT = Symbol('INCREMENT');
 const DECREMENT = Symbol('DECREMENT');
 
@@ -17,6 +18,12 @@ const Counter = connect => state =>
   ]);
 
 
+const counterReducer = createReducer(0, {
+  [INCREMENT]: state => state + 1,
+  [DECREMENT]: state => state - 1,
+});
+
+
 const Counters = connect => state =>
   div({}, [
     div({}, [
@@ -29,7 +36,11 @@ const Counters = connect => state =>
       }, [t('add')]),
     ]),
     div({}, state.map((count, i) =>
-      Counter(action => () => connect(action)(i))(state[i]))),
+      Counter(action => payload => connect(WRAP_COUNTER)({
+        action,
+        payload,
+        i,
+      }))(state[i]))),
   ]);
 
 
@@ -46,13 +57,13 @@ function pop(arr) {
   return copy;
 }
 
-
-const countersReducer = createReducer([], ({
-  [ADD_COUNTER]: state => state.concat([0]),
+const countersReducer = createReducer([], {
+  [ADD_COUNTER]: state => state.concat([counterReducer()]),
   [REMOVE_COUNTER]: state => pop(state),
-  [DECREMENT]: (state, i) => setAt(state, i, state[i] - 1),
-  [INCREMENT]: (state, i) => setAt(state, i, state[i] + 1),
-}));
+  [WRAP_COUNTER]: (state, payload) =>
+    setAt(state, payload.i,
+      counterReducer(state[payload.i], payload.action, payload.payload)),
+});
 
 
 render(countersReducer, Counters, document.getElementById('app'));
