@@ -25,43 +25,28 @@ const counterReducer = createReducer(0, {
 
 /// List: actions, view, reducer
 
-const listActions = {
+const counterListActions = {
   ADD: Symbol('ADD'),
   REMOVE: Symbol('REMOVE'),
-  CHILD_ACTION: Symbol('CHILD_ACTION'),
 };
 
-const List = connect => state =>
+
+const Counters = ListOf(Counter, counterActions);
+
+const CounterList = connect => state =>
   div({}, [
     div({}, [
       button({
-        onClick: connect(listActions.REMOVE),
+        onClick: connect(counterListActions.REMOVE),
         disabled: state.length < 1,
       }, [t('remove')]),
+      t(state.length),
       button({
-        onClick: connect(listActions.ADD)
+        onClick: connect(counterListActions.ADD)
       }, [t('add')]),
     ]),
-    div({}, state.map((count, i) =>
-      Counter(action => {
-        if (Object.keys(counterActions).some(k => counterActions[k] === action)) {
-          return payload => connect(listActions.CHILD_ACTION)({
-            action,
-            payload,
-            i
-          });
-        } else {
-          return connect(action);
-        }
-      })(state[i]))),
+    div({}, Counters.render(connect)(state)),
   ]);
-
-
-function setAt(arr, i, v) {
-  const copy = arr.slice();
-  copy[i] = v;
-  return copy;
-}
 
 
 function pop(arr) {
@@ -70,13 +55,13 @@ function pop(arr) {
   return copy;
 }
 
-const listReducer = createReducer([], {
-  [listActions.ADD]: state => state.concat([counterReducer()]),
-  [listActions.REMOVE]: state => pop(state),
-  [listActions.CHILD_ACTION]: (state, payload) =>
-    setAt(state, payload.i,
-      counterReducer(state[payload.i], payload.action, payload.payload)),
+const counterListReducer = createReducer([], {
+  [counterListActions.ADD]: state =>
+    state.concat([counterReducer()]),
+  [counterListActions.REMOVE]: state =>
+    pop(state),
+  [Counters.ACTION]: Counters.forward(counterReducer),
 });
 
 
-render(listReducer, List, document.getElementById('app'));
+render(counterListReducer, CounterList, document.getElementById('app'));
