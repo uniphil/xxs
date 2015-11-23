@@ -1,67 +1,50 @@
 'use strict';
 
+// Upon my {verb1} him, he immediately {verb2}, {verb3} {adverb1}, {verb4} against my {noun1}, and appeared {adjectives1} with my {noun2}.
+// This, then, was the very {noun3} of which I was in search.
+// I at once offered to {verb5} it of the {noun4}; but this {noun4} made no claim to it—knew nothing of it—had never {verb6} it before.
 
-/// Counter: actions, view, reducer
+const wordTypeReady = wordTypeState =>
+  wordTypeState.collected.length === wordTypeState.needed
 
-const counterActions = {
-  INCREMENT: Symbol('INCREMENT'),
-  DECREMENT: Symbol('DECREMENT'),
+
+const wordEntryActions = {
+  SUBMIT: Symbol('SUBMIT'),
 };
 
-const Counter = connect => state =>
-  div({}, [
-    button({ onClick: connect(counterActions.DECREMENT) }, [
-      t('-')]),
-    t(state),
-    button({ onClick: connect(counterActions.INCREMENT) }, [
-      t('+')]),
-  ]);
+const WordTypeEntry = connect => state => {
+  if (!wordTypeReady(state)) {
+    return form({
+      onSubmit: e => {
+        e.preventDefault();
+        const word = document.getElementById(state.type).value;
+        connect(wordEntryActions.SUBMIT)(word);
+        document.getElementById(state.type).focus();
+      },
+    }, [
+      label({ 'for': state.type }, [t(state.type)]),
+      input({ id: state.type, type: 'text' }, []),
+      button({ type: 'submit' }, [t('submit')]),
+      t(`${state.needed - state.collected.length} left`),
+    ]);
+  } else {
+    const v = state.collected;
+    return p({}, [
+      t(`Upon my ${v[0]} him, he immediately ${v[1]}, ${v[2]} loudly, ${v[3]} against my hand, and appeared delighted with my notice. ` +
+        `This then, was the very creature of which I was in search. ` +
+        `I at once offered to ${v[4]} it of the landlord, but this person made no claim of it—knew nothing of it—had never ${v[5]} it before.`)]);
+  }
+};
 
-const counterReducer = createReducer(0, {
-  [counterActions.INCREMENT]: state => state + 1,
-  [counterActions.DECREMENT]: state => state - 1,
+
+const wordEntryReducer = createReducer({
+  type: 'verb',
+  needed: 6,
+  collected: [],
+}, {
+  [wordEntryActions.SUBMIT]: (state, word) =>
+    set(state, 'collected', state.collected.concat([word])),
 });
 
 
-/// List: actions, view, reducer
-
-const counterListActions = {
-  ADD: Symbol('ADD'),
-  REMOVE: Symbol('REMOVE'),
-};
-
-
-const Counters = ListOf(Counter, counterActions);
-
-const CounterList = connect => state =>
-  div({}, [
-    div({}, [
-      button({
-        onClick: connect(counterListActions.REMOVE),
-        disabled: state.length < 1,
-      }, [t('remove')]),
-      t(state.length),
-      button({
-        onClick: connect(counterListActions.ADD)
-      }, [t('add')]),
-    ]),
-    div({}, Counters.render(connect)(state)),
-  ]);
-
-
-function pop(arr) {
-  const copy = arr.slice();
-  copy.pop();
-  return copy;
-}
-
-const counterListReducer = createReducer([], {
-  [counterListActions.ADD]: state =>
-    state.concat([counterReducer()]),
-  [counterListActions.REMOVE]: state =>
-    pop(state),
-  [Counters.ACTION]: Counters.forward(counterReducer),
-});
-
-
-render(counterListReducer, CounterList, document.getElementById('app'));
+render(wordEntryReducer, WordTypeEntry, document.getElementById('app'));

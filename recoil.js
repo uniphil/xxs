@@ -20,6 +20,10 @@
   const t = s => document.createTextNode(s);
   const div = d('div');
   const button = d('button');
+  const label = d('label');
+  const input = d('input');
+  const form = d('form');
+  const p = d('p');
 
 
   const createReducer = (initialState, handlers) => (prevState, action, payload) => {
@@ -59,6 +63,10 @@
     t,
     div,
     button,
+    label,
+    input,
+    form,
+    p,
     createReducer,
     render,
   });

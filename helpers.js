@@ -7,6 +7,9 @@
   }
 
 
+  const set = (obj, key, val) => Object.assign({}, obj, { [key]: val });
+
+
   const isInObj = things => thing =>
     Object.keys(things).some(t => things[t] === thing);
 
@@ -34,7 +37,9 @@
 
 
   Object.assign(global, {
-    ListOf
+    set: set,
+    setAt,
+    ListOf,
   });
 
 })(window);
