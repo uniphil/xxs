@@ -31,7 +31,21 @@ much ${adjectives[3]}er than Mr. ${nouns[0]}; she ${verbs[0]}ed ${adverbs[0]},
 and her ${nouns[1]} was ${adjectives[3]}ed. "That ${nouns[2]} is for sale," she
 said. "And five ${nouns[3]}s is a good enough price for it. I can't think what
 you're about, ${nouns[0]}, not to take the ${nouns[4]}'s offer!"`
-  }
+  },
+  {
+    title: 'Tales of Space and Time',
+    author: 'H. G. Wells',
+    wordCounts: {
+      verbs: 1,
+      adverbs: 0,
+      nouns: 3,
+      adjectives: 1,
+    },
+    print: (verbs, adverbs, nouns, adjectives) =>
+`At that Mr. ${nouns[0]}, apparently much ${adjectives[0]}ed, ${verbs[0]}ed to
+the ${nouns[1]}. "Isn't it here?" he said. "Great ${nouns[2]}! what has become
+of it?"`
+  },
 ];
 
 
