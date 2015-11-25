@@ -20,6 +20,7 @@
   const p = d('P');
   const strong = d('STRONG');
   const h1 = d('H1');
+  const h2 = d('H2');
 
 
   const createReducer = (initialState, handlers) => (prevState, action, payload) => {
@@ -92,6 +93,7 @@
     p,
     strong,
     h1,
+    h2,
     createReducer,
     render,
   });
