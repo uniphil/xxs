@@ -7,7 +7,8 @@
   }
 
 
-  const set = (obj, key, val) => Object.assign({}, obj, { [key]: val });
+  const update = (obj, changes) => Object.assign({}, obj, changes);
+  const set = (obj, key, val) => update(obj, { [key]: val });
 
 
   const isInObj = things => thing =>
@@ -37,6 +38,7 @@
 
 
   Object.assign(global, {
+    update,
     set: set,
     setAt,
     ListOf,

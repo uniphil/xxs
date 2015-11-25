@@ -18,7 +18,7 @@ const WordTypeEntry = connect => state => {
     return form({ events: {
       submit: e => {
         e.preventDefault();
-        connect(wordEntryActions.SUBMIT)(document.getElementById(state.type).value);
+        connect(wordEntryActions.SUBMIT)();
       },
     } }, [
       label({ attrs: { 'for': state.type } }, [t(state.type)]),
@@ -27,10 +27,7 @@ const WordTypeEntry = connect => state => {
         type: 'text',
         value: state.currentValue,
       }, events: {
-        keyup: e => {
-          e.preventDefault();
-          connect(wordEntryActions.KEYUP)(document.getElementById(state.type).value);
-        },
+        keyup: e => connect(wordEntryActions.KEYUP)(document.getElementById(state.type).value),
       } }),
       button({ attrs: { type: 'submit' } }, [t('submit')]),
       t(`${state.needed - state.collected.length} left`),
@@ -50,8 +47,10 @@ const wordEntryReducer = createReducer({
   needed: 6,
   collected: [],
 }, {
-  [wordEntryActions.SUBMIT]: (state, word) =>
-    set(state, 'collected', state.collected.concat([word])),
+  [wordEntryActions.SUBMIT]: state => update(state, {
+    collected: state.collected.concat([state.currentValue]),
+    currentValue: ''
+  }),
   [wordEntryActions.KEYUP]: (state, nextValue) =>
     set(state, 'currentValue', nextValue),
 });

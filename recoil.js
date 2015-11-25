@@ -6,18 +6,18 @@
 
   const d = name => (props, children) => ({
     type: 'DOMNode',
-    name: name,
+    tagName: name,
     events: props && props.events || {},
     attrs: props && props.attrs || {},
-    children: children || []
+    children: children || [],
   });
   const t = content => ({ type: 'TextNode', content });
-  const div = d('div');
-  const button = d('button');
-  const label = d('label');
-  const input = d('input');
-  const form = d('form');
-  const p = d('p');
+  const div = d('DIV');
+  const button = d('BUTTON');
+  const label = d('LABEL');
+  const input = d('INPUT');
+  const form = d('FORM');
+  const p = d('P');
 
 
   const createReducer = (initialState, handlers) => (prevState, action, payload) => {
@@ -29,30 +29,43 @@
   };
 
 
-  function replaceChildren(el, newNode) {
-    while (el.lastChild) {
-      el.lastChild.remove();
-    }
-    el.appendChild(newNode);
-  }
-
-  function toDOM(tree) {
-    if (tree.type === 'DOMNode') {
-      const el = document.createElement(tree.name);
-      Object.keys(tree.events).forEach(evt => el.addEventListener(evt, tree.events[evt]));
-      Object.keys(tree.attrs).forEach(attr => el.setAttribute(attr, tree.attrs[attr]));
-      tree.children.forEach(childTree => el.appendChild(toDOM(childTree)));
-      return el;
-    } else if (tree.type === 'TextNode') {
-      return document.createTextNode(tree.content);
+  function updateDOM(el, vNode, next) {
+    if (next.type === 'TextNode') {
+      el.parentElement.replaceChild(document.createTextNode(next.content), el);
+    } else if (next.type ==='DOMNode') {
+      if (vNode.type !== 'DOMNode' || ( vNode.type === 'DOMNode' && vNode.tagName !== next.tagName )) {
+        const nextEl = document.createElement(next.tagName);
+        el.parentElement.replaceChild(nextEl, el);
+        el = nextEl;
+        vNode = d(next.tagName)();
+      }
+      Object.keys(vNode.events).forEach(evt => el.removeEventListener(evt, vNode.events[evt]));
+      Object.keys(next.events).forEach(evt => el.addEventListener(evt, next.events[evt]));
+      Object.keys(vNode.attrs).forEach(attr => attr === 'value'
+        ? el.value = ''
+        : el.removeAttribute(attr));
+      Object.keys(next.attrs).forEach(attr => attr === 'value'
+        ? el.value = next.attrs[attr]
+        : el.setAttribute(attr, next.attrs[attr]));
+      for (let i = 0, oldc, nextc; (oldc = vNode.children[i]) && (nextc = next.children[i]); i++) {
+        updateDOM(el.childNodes[i], oldc, nextc);
+      }
+      for (let i = vNode.children.length, nextc; nextc = next.children[i]; i++) {
+        el.appendChild(document.createElement(nextc.tagName));
+        updateDOM(el.lastChild, d(nextc.tagName)(), nextc);
+      }
+      for (let i = next.children.length; i < vNode.children.length; i++) {
+        el.removeChild(el.lastChild);
+      }
     } else {
       throw new Error(`Unknown tree type for ${JSON.stringify(tree)}`);
     }
+    return el;
   }
 
 
   function render(reducer, Component, el) {
-    var state, oldTree;
+    var state, vNode = div();
 
     const boundComponent = Component(
       action => payload => dispatch(action, payload)
@@ -61,7 +74,7 @@
     const dispatch = (action, payload) => {
       state = reducer(state, action, payload);
       console.info(state);
-      replaceChildren(el, toDOM(boundComponent(state)));
+      el = updateDOM(el, vNode, vNode = boundComponent(state));
     };
 
     dispatch();
