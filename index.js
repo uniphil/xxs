@@ -9,29 +9,37 @@ const wordEntryActions = {
   KEYUP: Symbol('KEYUP'),
 };
 
-const WordTypeEntry = connect => state => {
-  if (!wordTypeReady(state)) {
-    return form({ events: {
-      submit: e => {
-        e.preventDefault();
-        connect(wordEntryActions.SUBMIT)();
-      },
-    } }, [
-      label({ attrs: { 'for': state.type } }, [t(state.type)]),
-      input({ attrs: {
-        id: state.type,
-        type: 'text',
-        value: state.currentValue,
-      }, events: {
-        input: e => connect(wordEntryActions.KEYUP)(document.getElementById(state.type).value),
-      } }),
-      button({ attrs: { type: 'submit' } }, [t('add')]),
-      t(`${state.needed - state.collected.length} left`),
-    ]);
-  } else {
-    return p({}, [t(`${state.type}s completed!`)]);
-  }
-};
+
+const WordEntry = connect => state =>
+  form({ events: {
+    submit: e => {
+      e.preventDefault();
+      connect(wordEntryActions.SUBMIT)();
+    },
+  } }, [
+    label({ attrs: { 'for': state.type } }, [t(state.type)]),
+    input({ attrs: {
+      id: state.type,
+      type: 'text',
+      value: state.currentValue,
+    }, events: {
+      input: e => connect(wordEntryActions.KEYUP)(e.target.value),
+    } }),
+    button({ attrs: { type: 'submit' } }, [
+      strong({}, [t('add')]),
+      t(` (${state.needed - state.collected.length} left)`),
+    ]),
+  ]);
+
+
+const WordTypeEntry = connect => state =>
+  div({ attrs: {
+    className: 'word-entry',
+  }}, [
+    wordTypeReady(state)
+      ? p({}, [t(`${state.type}s completed!`)])
+      : WordEntry(connect)(state)
+  ]);
 
 
 const wordEntryReducer = (type, needed) => createReducer({
@@ -60,15 +68,17 @@ const WordTypeEntries = ListOf(WordTypeEntry, wordEntryActions);
 
 const MadLib = connect => state => {
   if (state.wordTypes.every(wordTypeReady)) {
-    const vs = state.wordTypes[0].collected;
-    const av = state.wordTypes[1].collected;
-    const ns = state.wordTypes[2].collected;
-    const aj = state.wordTypes[3].collected;
+    const verbs = state.wordTypes[0].collected,
+          adverbs = state.wordTypes[1].collected,
+          nouns = state.wordTypes[2].collected,
+          adjectives = state.wordTypes[3].collected;
     return div({}, [
       p({}, [
-        t(`"It is ${aj[0]}!" ${vs[0]}ed the ${ns[0]} ${vs[1]}ing in the ${ns[1]}. ` +
-          `But in the ${aj[1]} ${ns[2]}s the ${ns[3]}s ${vs[2]}ed their ${ns[4]} and ${vs[3]}ed at one another. ` +
-          `"It is ${aj[2]}," they said. "${aj[2]}!"`) ]),
+        t(`"It is ${adjectives[0]}!" ${verbs[0]}ed the ${nouns[0]} ` +
+          `${verbs[1]}ing in the ${nouns[1]}. But in the ${adjectives[1]} ` +
+          `${nouns[2]}s the ${nouns[3]}s ${verbs[2]}ed their ${nouns[4]} and ` +
+          `${verbs[3]}ed at one another. "It is ${adjectives[2]}," they ` +
+          `said. "${adjectives[2]}!"`) ]),
       button({ events: {
         click: connect(madlibActions.RESET)
       } }, [t('again')]),

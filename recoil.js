@@ -18,6 +18,7 @@
   const input = d('INPUT');
   const form = d('FORM');
   const p = d('P');
+  const strong = d('STRONG');
 
 
   const createReducer = (initialState, handlers) => (prevState, action, payload) => {
@@ -88,6 +89,7 @@
     input,
     form,
     p,
+    strong,
     createReducer,
     render,
   });
