@@ -22,12 +22,12 @@
       ACTION: wrapperAction,
       render: connect => state => {
         const actionWrapper = connect(wrapperAction);
-        return state.map((s, i) =>
+        return state.map((stateItem, i) =>
           Component(action =>
             isInActions(action)
               ? payload => actionWrapper({ action, payload, i })
               : connect(action)
-          )(state[i]))
+          )(stateItem))
       },
       forward: reducer => (state, payload) => {
         return setAt(state, payload.i,

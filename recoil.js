@@ -73,7 +73,6 @@
 
     const dispatch = (action, payload) => {
       state = reducer(state, action, payload);
-      console.info(state);
       el = updateDOM(el, vNode, vNode = boundComponent(state));
     };
 
