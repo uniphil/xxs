@@ -10,40 +10,50 @@ const wordTypeReady = wordTypeState =>
 
 const wordEntryActions = {
   SUBMIT: Symbol('SUBMIT'),
+  KEYUP: Symbol('KEYUP'),
 };
 
 const WordTypeEntry = connect => state => {
   if (!wordTypeReady(state)) {
-    return form({
-      onSubmit: e => {
+    return form({ events: {
+      submit: e => {
         e.preventDefault();
-        const word = document.getElementById(state.type).value;
-        connect(wordEntryActions.SUBMIT)(word);
-        document.getElementById(state.type).focus();
+        connect(wordEntryActions.SUBMIT)(document.getElementById(state.type).value);
       },
-    }, [
-      label({ 'for': state.type }, [t(state.type)]),
-      input({ id: state.type, type: 'text' }, []),
-      button({ type: 'submit' }, [t('submit')]),
+    } }, [
+      label({ attrs: { 'for': state.type } }, [t(state.type)]),
+      input({ attrs: {
+        id: state.type,
+        type: 'text',
+        value: state.currentValue,
+      }, events: {
+        keyup: e => {
+          e.preventDefault();
+          connect(wordEntryActions.KEYUP)(document.getElementById(state.type).value);
+        },
+      } }),
+      button({ attrs: { type: 'submit' } }, [t('submit')]),
       t(`${state.needed - state.collected.length} left`),
     ]);
   } else {
     const v = state.collected;
-    return p({}, [
-      t(`Upon my ${v[0]} him, he immediately ${v[1]}, ${v[2]} loudly, ${v[3]} against my hand, and appeared delighted with my notice. ` +
-        `This then, was the very creature of which I was in search. ` +
-        `I at once offered to ${v[4]} it of the landlord, but this person made no claim of it—knew nothing of it—had never ${v[5]} it before.`)]);
+    return t(`Upon my ${v[0]} him, he immediately ${v[1]}, ${v[2]} loudly, ${v[3]} against my hand, and appeared delighted with my notice. ` +
+      `This then, was the very creature of which I was in search. ` +
+      `I at once offered to ${v[4]} it of the landlord, but this person made no claim of it—knew nothing of it—had never ${v[5]} it before.`);
   }
 };
 
 
 const wordEntryReducer = createReducer({
+  currentValue: '',
   type: 'verb',
   needed: 6,
   collected: [],
 }, {
   [wordEntryActions.SUBMIT]: (state, word) =>
     set(state, 'collected', state.collected.concat([word])),
+  [wordEntryActions.KEYUP]: (state, nextValue) =>
+    set(state, 'currentValue', nextValue),
 });
 
 

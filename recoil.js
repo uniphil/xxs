@@ -4,20 +4,14 @@
 (function(global) {
   const isHandler = attr => attr.startsWith('on');
 
-  const d = name => (attrs, children) => {
-    const el = document.createElement(name);
-    Object.keys(attrs)
-      .filter(attr => !!attrs[attr])
-      .forEach(attr =>
-        attr.startsWith('on') ?
-          el.addEventListener(attr.slice(2).toLowerCase(), attrs[attr]) :
-          el.setAttribute(attr, attrs[attr]));
-    children.forEach(child =>
-      el.appendChild(child));
-    return el;
-  };
-
-  const t = s => document.createTextNode(s);
+  const d = name => (props, children) => ({
+    type: 'DOMNode',
+    name: name,
+    events: props && props.events || {},
+    attrs: props && props.attrs || {},
+    children: children || []
+  });
+  const t = content => ({ type: 'TextNode', content });
   const div = d('div');
   const button = d('button');
   const label = d('label');
@@ -42,6 +36,20 @@
     el.appendChild(newNode);
   }
 
+  function toDOM(tree) {
+    if (tree.type === 'DOMNode') {
+      const el = document.createElement(tree.name);
+      Object.keys(tree.events).forEach(evt => el.addEventListener(evt, tree.events[evt]));
+      Object.keys(tree.attrs).forEach(attr => el.setAttribute(attr, tree.attrs[attr]));
+      tree.children.forEach(childTree => el.appendChild(toDOM(childTree)));
+      return el;
+    } else if (tree.type === 'TextNode') {
+      return document.createTextNode(tree.content);
+    } else {
+      throw new Error(`Unknown tree type for ${JSON.stringify(tree)}`);
+    }
+  }
+
 
   function render(reducer, Component, el) {
     var state, oldTree;
@@ -52,7 +60,8 @@
 
     const dispatch = (action, payload) => {
       state = reducer(state, action, payload);
-      replaceChildren(el, boundComponent(state));
+      console.info(state);
+      replaceChildren(el, toDOM(boundComponent(state)));
     };
 
     dispatch();
