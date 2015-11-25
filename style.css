@@ -1,0 +1,104 @@
+html, body {
+  font-family: "Comic Sans", cursive, sans-serif;
+  font-size: 20px;
+  margin: 0;
+  height: 100%;
+  padding: 0;
+}
+
+h1 {
+  color: darkblue;
+  margin-top: 0;
+}
+
+input, button {
+  font: inherit;
+}
+
+button {
+  border: 3px solid dodgerblue;
+  border-radius: 2em / 100%;
+  background: mediumblue;
+  color: white;
+  cursor: pointer;
+  line-height: 2.5em;
+  padding: 0 1.5em;
+}
+button:hover,
+button:focus {
+  background-color: blue;
+}
+button:active {
+  background: darkblue;
+}
+button:disabled {
+  background-color: dodgerblue;
+  color: powderblue;
+}
+
+#app {
+  align-items: center;
+  background: LawnGreen;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+}
+
+.word-entry {
+  background: white;
+  border-radius: 2.5em / 100%;
+  border: 3px solid dodgerblue;
+  overflow: hidden;
+  margin: 1em;
+}
+
+.word-entry form {
+  display: flex;
+}
+
+.word-entry form > * {
+  display: block;
+}
+
+.word-entry label {
+  background: lightcyan;
+  border-right: 2px solid dodgerblue;
+  color: mediumblue;
+  line-height: 2.5em;
+  padding: 0 0.5em;
+  text-align: center;
+  width: 6em;
+}
+
+.word-entry input,
+.word-entry button {
+  border-width: 0;
+  line-height: 2.5em;
+}
+
+.word-entry input {
+  flex-grow: 1;
+  padding: 0 0.5em;
+  min-width: 12em;
+}
+
+
+.word-entry button {
+  border-radius: 2em 0 0 2em / 100%;
+}
+
+.word-entry p {
+  background: lightcyan;
+  color: mediumblue;
+  line-height: 2.5em;
+  margin: 0;
+  text-align: center;
+}
+
+.story {
+  font-size: 1.2em;
+  line-height: 1.618;
+  max-width: 20em;
+  text-align: justify;
+}

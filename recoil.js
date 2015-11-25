@@ -19,6 +19,7 @@
   const form = d('FORM');
   const p = d('P');
   const strong = d('STRONG');
+  const h1 = d('H1');
 
 
   const createReducer = (initialState, handlers) => (prevState, action, payload) => {
@@ -59,7 +60,7 @@
         el.removeChild(el.lastChild);
       }
     } else {
-      throw new Error(`Unknown tree type for ${JSON.stringify(tree)}`);
+      throw new Error(`Unknown tree type for ${JSON.stringify(next)}`);
     }
     return el;
   }
@@ -90,6 +91,7 @@
     form,
     p,
     strong,
+    h1,
     createReducer,
     render,
   });
