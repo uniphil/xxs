@@ -55,7 +55,7 @@ const wordTypeReady = wordTypeState =>
 
 const wordEntryActions = {
   SUBMIT: Symbol('SUBMIT'),
-  KEYUP: Symbol('KEYUP'),
+  CHANGE: Symbol('CHANGE'),
 };
 
 
@@ -73,7 +73,7 @@ const WordEntry = connect => state =>
       type: 'text',
       value: state.currentValue,
     }, events: {
-      input: e => connect(wordEntryActions.KEYUP)(e.target.value),
+      input: e => connect(wordEntryActions.CHANGE)(e.target.value),
     } }),
     state.currentValue.length > 0
       ? button({ attrs: { type: 'submit' } }, [
@@ -112,7 +112,7 @@ const wordEntryReducer = (type, hint, needed) => createReducer({
     collected: state.collected.concat([state.currentValue]),
     currentValue: ''
   }),
-  [wordEntryActions.KEYUP]: (state, nextValue) =>
+  [wordEntryActions.CHANGE]: (state, nextValue) =>
     set(state, 'currentValue', nextValue),
 });
 
