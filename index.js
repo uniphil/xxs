@@ -54,8 +54,10 @@ const wordTypeReady = wordTypeState =>
 
 
 const wordEntryActions = {
-  SUBMIT: Symbol('SUBMIT'),
+  BLUR: Symbol('BLUR'),
+  FOCUS: Symbol('FOCUS'),
   CHANGE: Symbol('CHANGE'),
+  SUBMIT: Symbol('SUBMIT'),
 };
 
 
@@ -73,11 +75,16 @@ const WordEntry = connect => state =>
       type: 'text',
       value: state.currentValue,
     }, events: {
+      blur: connect(wordEntryActions.BLUR),
+      focus: connect(wordEntryActions.FOCUS),
       input: e => connect(wordEntryActions.CHANGE)(e.target.value),
     } }),
-    state.currentValue.length > 0
-      ? button({ attrs: { type: 'submit' } }, [
-          strong({}, [t('add')]),
+    state.focused || state.currentValue.length > 0
+      ? button({ attrs: state.currentValue.length === 0
+          ? { type: 'submit', disabled: true }
+          : { type: 'submit' }
+        }, [
+          strong({}, [t('Add')]),
           t(` (${state.needed - state.collected.length} left)`),
         ])
       : button({ attrs: { disabled: true } }, [
@@ -107,6 +114,7 @@ const wordEntryReducer = (type, hint, needed) => createReducer({
   hint,
   needed,
   collected: [],
+  focused: false,
 }, {
   [wordEntryActions.SUBMIT]: state => update(state, {
     collected: state.collected.concat([state.currentValue]),
@@ -114,6 +122,10 @@ const wordEntryReducer = (type, hint, needed) => createReducer({
   }),
   [wordEntryActions.CHANGE]: (state, nextValue) =>
     set(state, 'currentValue', nextValue),
+  [wordEntryActions.FOCUS]: state =>
+    set(state, 'focused', true),
+  [wordEntryActions.BLUR]: state =>
+    set(state, 'focused', false),
 });
 
 
