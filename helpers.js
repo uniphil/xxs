@@ -15,24 +15,21 @@
     Object.keys(things).some(t => things[t] === thing);
 
 
-  function ListOf(Component, actions) {
-    const wrapperAction = Symbol('LIST ACTION (wrapper)');
+  function ListOf(Component, actions, updaters) {
+    const wrapperAction = Symbol(`LIST ACTIONS {${Object.keys(actions).join(', ')}}`);
     const isInActions = isInObj(actions);
+    const reducer = createUpdater(updaters);
     return {
       ACTION: wrapperAction,
-      render: connect => state => {
-        const actionWrapper = connect(wrapperAction);
-        return state.map((stateItem, i) =>
-          Component(action =>
+      render: (state, dispatch) =>
+        state.map((stateItem, i) =>
+          Component(stateItem, (action, payload) =>
             isInActions(action)
-              ? payload => actionWrapper({ action, payload, i })
-              : connect(action)
-          )(stateItem))
-      },
-      forward: reducer => (state, payload) => {
-        return setAt(state, payload.i,
-          reducer(state[payload.i], payload.action, payload.payload));
-      },
+              ? dispatch(wrapperAction, { action, payload, i })
+              : dispatch(action, payload))),
+      forward: (state, payload) =>
+        setAt(state, payload.i,
+          reducer(state[payload.i], payload.action, payload.payload)),
     };
   }
 

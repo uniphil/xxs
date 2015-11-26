@@ -75,10 +75,27 @@ function updateDOM(el, vDOM, nextDOM) {
 function render(Component, initialState, actionUpdates, el) {
   const reducer = createUpdater(actionUpdates);
   var state = initialState,
+      dispatching,
       vDOM = dFactory(el.tagName)();
 
-  (function dispatch(action, payload) {
-    state = reducer(state, action, payload);
-    el = updateDOM(el, vDOM, vDOM = Component(state, dispatch));
+  const dispatch = (function dispatch(action, payload) {
+    if (dispatching) {
+      throw new Error(`'${action.toString()}' was dispatched while '${dispatching.toString()}' was still updating. Updaters should be pure functions and must not dispatch actions.`);
+    }
+    try {
+      dispatching = action;
+      state = reducer(state, action, payload);
+    } finally {
+      dispatching = null;
+    }
+    return dispatch;
+  })();
+
+  (function updateUI() {
+    try {
+      el = updateDOM(el, vDOM, vDOM = Component(state, dispatch));
+    } finally {
+      requestAnimationFrame(updateUI);
+    }
   })();
 }

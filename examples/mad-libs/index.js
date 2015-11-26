@@ -61,72 +61,76 @@ const wordEntryActions = {
 };
 
 
-const WordEntry = connect => state =>
-  form({ events: {
+const WordEntry = (state, dispatch) =>
+  d.form({ events: {
     submit: e => {
       e.preventDefault();
-      connect(wordEntryActions.SUBMIT)();
+      dispatch(wordEntryActions.SUBMIT);
     },
   } }, [
-    label({ attrs: { 'for': state.type } }, [t(state.type)]),
-    input({ attrs: {
+    d.label({ attrs: { 'for': state.type } }, [t(state.type)]),
+    d.input({ attrs: {
       id: state.type,
       placeholder: state.hint,
       type: 'text',
       value: state.currentValue,
     }, events: {
-      blur: connect(wordEntryActions.BLUR),
-      focus: connect(wordEntryActions.FOCUS),
-      input: e => connect(wordEntryActions.CHANGE)(e.target.value),
+      blur: () => dispatch(wordEntryActions.BLUR),
+      focus: () => dispatch(wordEntryActions.FOCUS),
+      input: e => dispatch(wordEntryActions.CHANGE, e.target.value),
     } }),
     state.focused || state.currentValue.length > 0
-      ? button({ attrs: state.currentValue.length === 0
+      ? d.button({ attrs: state.currentValue.length === 0
           ? { type: 'submit', disabled: true }
           : { type: 'submit' }
         }, [
-          strong({}, [t('Add')]),
+          d.strong({}, [t('Add')]),
           t(` (${state.needed - state.collected.length} left)`),
         ])
-      : button({ attrs: { disabled: true } }, [
-          strong({}, [t('⬅ type a word')])
+      : d.button({ attrs: { disabled: true } }, [
+          d.strong({}, [t('⬅ type a word')])
         ])
   ]);
 
 
-const WordTypeEntry = connect => state => {
+const WordTypeEntry = (state, dispatch) => {
   if (state.needed === 0) {
     return t('');
   } else {
-    return div({ attrs: {
+    return d.div({ attrs: {
         'class': 'word-entry',
       }}, [
         wordTypeReady(state)
-          ? p({}, [t(`✓ ${state.type}s completed!`)])
-          : WordEntry(connect)(state)
+          ? d.p({}, [t(`✓ ${state.type}s completed!`)])
+          : WordEntry(state, dispatch)
       ]);
   }
 };
 
 
-const wordEntryReducer = (type, hint, needed) => createReducer({
+const getWordEntryInit = (type, hint, needed) => ({
   currentValue: '',
   type,
   hint,
   needed,
   collected: [],
   focused: false,
-}, {
-  [wordEntryActions.SUBMIT]: state => update(state, {
-    collected: state.collected.concat([state.currentValue]),
-    currentValue: ''
-  }),
+});
+
+
+const wordEntryUpdates = {
+  [wordEntryActions.SUBMIT]: state =>
+    update(state, {
+      collected: state.collected.concat([state.currentValue]),
+      currentValue: ''
+    }),
   [wordEntryActions.CHANGE]: (state, nextValue) =>
     set(state, 'currentValue', nextValue),
   [wordEntryActions.FOCUS]: state =>
     set(state, 'focused', true),
   [wordEntryActions.BLUR]: state =>
     set(state, 'focused', false),
-});
+};
 
 
 //////
@@ -136,39 +140,39 @@ const madlibActions = {
 };
 
 
-const WordTypeEntries = ListOf(WordTypeEntry, wordEntryActions);
+const WordTypeEntries = ListOf(WordTypeEntry, wordEntryActions, wordEntryUpdates);
 
-const MadLib = connect => state => {
+const MadLib = (state, dispatch) => {
   if (state.wordTypes.every(wordTypeReady)) {
     const verbs = state.wordTypes[0].collected,
           adverbs = state.wordTypes[1].collected,
           nouns = state.wordTypes[2].collected,
           adjectives = state.wordTypes[3].collected;
-    return div({}, [
-      h1({}, [t(state.title)]),
-      h2({}, [t(`by ${state.author}`)]),
-      p({ attrs: { 'class': 'story' }}, [
+    return d.div({}, [
+      d.h1({}, [t(state.title)]),
+      d.h2({}, [t(`by ${state.author}`)]),
+      d.p({ attrs: { 'class': 'story' }}, [
         t(state.print(
           state.wordTypes[0].collected,
           state.wordTypes[1].collected,
           state.wordTypes[2].collected,
           state.wordTypes[3].collected)) ]),
-      button({ attrs: {
+      d.button({ attrs: {
         'class': 'again',
       }, events: {
-        click: connect(madlibActions.RESET)
+        click: () => dispatch(madlibActions.RESET)
       } }, [t('New Mad Lib!')]),
     ]);
   } else {
-    return div({}, [
-      h1({}, [t('Mad Libs')]),
-      div({}, WordTypeEntries.render(connect)(state.wordTypes)),
+    return d.div({}, [
+      d.h1({}, [t('Mad Libs')]),
+      d.div({}, WordTypeEntries.render(state.wordTypes, dispatch)),
     ]);
   }
 };
 
 
-const madInitialState = () => {
+const getMadInit = () => {
   const i = Math.floor(Math.random() * stories.length);
   const story = stories[i];
   const counts = story.wordCounts;
@@ -177,20 +181,19 @@ const madInitialState = () => {
     author: story.author,
     print: story.print,
     wordTypes: [
-      wordEntryReducer('verb', 'run, jump...', counts.verbs)(),
-      wordEntryReducer('adverb', 'quickly, easily...', counts.adverbs)(),
-      wordEntryReducer('noun', 'dog, city, trumpet...', counts.nouns)(),
-      wordEntryReducer('adjective', 'red, loud, hard...', counts.adjectives)(),
+      getWordEntryInit('verb', 'run, jump...', counts.verbs),
+      getWordEntryInit('adverb', 'quickly, easily...', counts.adverbs),
+      getWordEntryInit('noun', 'dog, city, trumpet...', counts.nouns),
+      getWordEntryInit('adjective', 'red, loud, hard...', counts.adjectives),
     ],
   };
 };
 
-const madLibReducer = createReducer(madInitialState(), {
-  [madlibActions.RESET]: () => madInitialState(),
+const madUpdates = {
+  [madlibActions.RESET]: () => getMadInit(),
   [WordTypeEntries.ACTION]: (state, payload) =>
-    set(state, 'wordTypes', WordTypeEntries.forward(wordEntryReducer())(
-      state.wordTypes, payload))
-});
+    set(state, 'wordTypes', WordTypeEntries.forward(state.wordTypes, payload))
+};
 
 
-render(madLibReducer, MadLib, document.getElementById('app'));
+render(MadLib, getMadInit(), madUpdates, document.getElementById('app'));
