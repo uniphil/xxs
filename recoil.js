@@ -1,6 +1,12 @@
 'use strict';
 
 const dFactory = name => (props, children) => {
+  if (props && Array.isArray(props)) {
+    throw new Error(`Expected an Object for props but found an Array: '${JSON.stringify(props)}'\nDid you forget to put an empty '{}' for props before the child array?`);
+  }
+  if (props && Object.keys(props).some(k => ['events', 'attrs'].indexOf(k) === -1)) {
+    throw new Error(`Invalid key found in props {${Object.keys(props).join(': ..., ')}: ...} for DOMNode '${name}'\nOnly 'attrs' and 'events' are allowed -- did you forget to nest your attribute or event inside one of those?`);
+  }
   if (children && !Array.isArray(children)) {
     throw new Error(`Expected an Array for children but found ${JSON.stringify(children)}`);
   }
@@ -72,7 +78,7 @@ function updateDOM(el, vDOM, nextDOM) {
 function render(Component, initialState, actionUpdates, el) {
   const reducer = createUpdater(actionUpdates);
   var state = initialState,
-      vDOM = dFactory('')();
+      vDOM = dFactory(el.tagName)();
 
   (function dispatch(action, payload) {
     state = reducer(state, action, payload);
