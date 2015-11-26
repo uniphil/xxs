@@ -74,10 +74,8 @@ function render(Component, initialState, actionUpdates, el) {
   var state = initialState,
       vDOM = dFactory('')();
 
-  const dispatch = (action, payload) => {
+  (function dispatch(action, payload) {
     state = reducer(state, action, payload);
     el = updateDOM(el, vDOM, vDOM = Component(state, dispatch));
-  };
-
-  dispatch();
+  })();
 }
