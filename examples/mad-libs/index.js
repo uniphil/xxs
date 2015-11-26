@@ -120,16 +120,16 @@ const getWordEntryInit = (type, hint, needed) => ({
 
 const wordEntryUpdates = createUpdater({
   [wordEntryActions.SUBMIT]: state =>
-    update(state, {
+    o.update(state, {
       collected: state.collected.concat([state.currentValue]),
       currentValue: ''
     }),
   [wordEntryActions.CHANGE]: (state, nextValue) =>
-    set(state, 'currentValue', nextValue),
+    o.set(state, 'currentValue', nextValue),
   [wordEntryActions.FOCUS]: state =>
-    set(state, 'focused', true),
+    o.set(state, 'focused', true),
   [wordEntryActions.BLUR]: state =>
-    set(state, 'focused', false),
+    o.set(state, 'focused', false),
 });
 
 
@@ -193,8 +193,8 @@ const getMadInit = () => {
 const madUpdates = createUpdater({
   [madlibActions.RESET]: () => getMadInit(),
   [madlibActions.ENTRY_ACTION]: (state, payload) =>
-    set(state, 'wordTypes',
-      setAt(state.wordTypes, payload.i,
+    o.set(state, 'wordTypes',
+      a.setAt(state.wordTypes, payload.i,
         wordEntryUpdates(state.wordTypes[payload.i], payload.action, payload.payload))),
 });
 
