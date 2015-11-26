@@ -76,6 +76,7 @@ function render(Component, initialState, actionUpdates, el) {
   const reducer = createUpdater(actionUpdates);
   var state = initialState,
       dispatching,
+      dirty = false,
       vDOM = dFactory(el.tagName)();
 
   const dispatch = (function dispatch(action, payload) {
@@ -88,14 +89,19 @@ function render(Component, initialState, actionUpdates, el) {
     } finally {
       dispatching = null;
     }
+    updateUI();
     return dispatch;
   })();
 
-  (function updateUI() {
-    try {
-      el = updateDOM(el, vDOM, vDOM = Component(state, dispatch));
-    } finally {
-      requestAnimationFrame(updateUI);
-    }
-  })();
+  function updateUI() {
+    if (dirty) { return; }  // RAF already queued
+    dirty = true;
+    requestAnimationFrame(() => {
+      try {
+        el = updateDOM(el, vDOM, vDOM = Component(state, dispatch));
+      } finally {
+        dirty = false;
+      }
+    });
+  };
 }
