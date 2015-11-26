@@ -1,12 +1,17 @@
 'use strict';
 
-const dFactory = name => (props, children) => ({
-  type: 'DOMNode',
-  tagName: name.toUpperCase(),
-  events: props && props.events || {},
-  attrs: props && props.attrs || {},
-  children: children || [],
-});
+const dFactory = name => (props, children) => {
+  if (children && !Array.isArray(children)) {
+    throw new Error(`Expected an Array for children but found ${JSON.stringify(children)}`);
+  }
+  return {
+    type: 'DOMNode',
+    tagName: name.toUpperCase(),
+    events: props && props.events || {},
+    attrs: props && props.attrs || {},
+    children: children || [],
+  };
+};
 // node names list blatantly stolen from react
 const nodeNames = ['a', 'abbr', 'address', 'area', 'article', 'aside', 'audio', 'b', 'base', 'bdi', 'bdo', 'big', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'cite', 'code', 'col', 'colgroup', 'data', 'datalist', 'dd', 'del', 'details', 'dfn', 'dialog', 'div', 'dl', 'dt', 'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'input', 'ins', 'kbd', 'keygen', 'label', 'legend', 'li', 'link', 'main', 'map', 'mark', 'menu', 'menuitem', 'meta', 'meter', 'nav', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'picture', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'small', 'source', 'span', 'strong', 'style', 'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'textarea', 'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr'];
 const d = nodeNames.map(n => ({ [n]: dFactory(n) })).reduce((a, b) => Object.assign(a, b));
@@ -17,7 +22,7 @@ const createUpdater = actionUpdates => (state, action, payload) => {
     return actionUpdates[action](state, payload);
   } else if (typeof actionUpdates[action] !== 'undefined') {
     throw new Error(`Expected a function for action ${action.toString()} but ` +
-                    `got '${actionUpdates[action]}.'`);
+                    `found '${actionUpdates[action]}.'`);
   } else {
     return state;
   }
@@ -44,12 +49,15 @@ function updateDOM(el, vDOM, nextDOM) {
     for (var i = 0, oldc, nextc; (oldc = vDOM.children[i]) && (nextc = nextDOM.children[i]); i++) {
       updateDOM(el.childNodes[i], oldc, nextc);
     }
-    for (var i = vDOM.children.length, nextc; nextc = nextDOM.children[i]; i++) {
+    for (var i = vDOM.children.length; i < nextDOM.children.length; i++) {
+      const nextc = nextDOM.children[i];
       if (nextc.type === 'TextNode') {
         el.appendChild(document.createTextNode(nextc.content));
-      } else {
+      } else if (nextc.type === 'DOMNode') {
         el.appendChild(document.createElement(nextc.tagName));
         updateDOM(el.lastChild, dFactory(nextc.tagName)(), nextc);
+      } else {
+        throw new Error(`Unknown node type for node: ${JSON.stringify(nextc)}`);
       }
     }
     for (var i = nextDOM.children.length; i < vDOM.children.length; i++) {
