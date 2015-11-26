@@ -137,10 +137,9 @@ const wordEntryUpdates = {
 
 const madlibActions = {
   RESET: Symbol('RESET'),
+  ENTRY_ACTION: Symbol('ENTRY_ACTION'),
 };
 
-
-const WordTypeEntries = ListOf(WordTypeEntry, wordEntryActions, wordEntryUpdates);
 
 const MadLib = (state, dispatch) => {
   if (state.wordTypes.every(wordTypeReady)) {
@@ -166,7 +165,9 @@ const MadLib = (state, dispatch) => {
   } else {
     return d.div({}, [
       d.h1({}, [t('Mad Libs')]),
-      d.div({}, WordTypeEntries.render(state.wordTypes, dispatch)),
+      d.div({}, state.wordTypes.map((entryState, i) =>
+        WordTypeEntry(entryState, (action, payload) =>
+          dispatch(madlibActions.ENTRY_ACTION, { action, payload, i })))),
     ]);
   }
 };
@@ -191,8 +192,10 @@ const getMadInit = () => {
 
 const madUpdates = {
   [madlibActions.RESET]: () => getMadInit(),
-  [WordTypeEntries.ACTION]: (state, payload) =>
-    set(state, 'wordTypes', WordTypeEntries.forward(state.wordTypes, payload))
+  [madlibActions.ENTRY_ACTION]: (state, payload) =>
+    set(state, 'wordTypes',
+      setAt(state.wordTypes, payload.i, createUpdater(wordEntryUpdates)(
+        state.wordTypes[payload.i], payload.action, payload.payload))),
 };
 
 
