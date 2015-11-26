@@ -2,26 +2,29 @@ const DECREMENT = Symbol('DECREMENT');
 const INCREMENT = Symbol('INCREMENT');
 
 
-const Counter = connect => state =>
-  div({}, [
-    button({
+const Counter = (state, dispatch) =>
+  d.div({}, [
+    d.button({
       events: {
-        click: connect(DECREMENT),
+        click: () => dispatch(DECREMENT),
       },
     }, [t('-')]),
     t(state),
-    button({
+    d.button({
       events: {
-        click: connect(INCREMENT),
+        click: () => dispatch(INCREMENT),
       },
     }, [t('+')]),
   ]);
 
 
-const counterReducer = createReducer(0, {
+const initialState = 0;
+
+
+const actionUpdates = {
   [DECREMENT]: state => state - 1,
   [INCREMENT]: state => state + 1,
-});
+};
 
 
-render(counterReducer, Counter, document.getElementById('app'))
+render(Counter, initialState, actionUpdates, document.getElementById('app'));
