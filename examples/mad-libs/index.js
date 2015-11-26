@@ -118,7 +118,7 @@ const getWordEntryInit = (type, hint, needed) => ({
 });
 
 
-const wordEntryUpdates = {
+const wordEntryUpdates = createUpdater({
   [wordEntryActions.SUBMIT]: state =>
     update(state, {
       collected: state.collected.concat([state.currentValue]),
@@ -130,7 +130,7 @@ const wordEntryUpdates = {
     set(state, 'focused', true),
   [wordEntryActions.BLUR]: state =>
     set(state, 'focused', false),
-};
+});
 
 
 //////
@@ -190,13 +190,13 @@ const getMadInit = () => {
   };
 };
 
-const madUpdates = {
+const madUpdates = createUpdater({
   [madlibActions.RESET]: () => getMadInit(),
   [madlibActions.ENTRY_ACTION]: (state, payload) =>
     set(state, 'wordTypes',
-      setAt(state.wordTypes, payload.i, createUpdater(wordEntryUpdates)(
-        state.wordTypes[payload.i], payload.action, payload.payload))),
-};
+      setAt(state.wordTypes, payload.i,
+        wordEntryUpdates(state.wordTypes[payload.i], payload.action, payload.payload))),
+});
 
 
 render(MadLib, getMadInit(), madUpdates, document.getElementById('app'));

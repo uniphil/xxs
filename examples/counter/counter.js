@@ -21,10 +21,10 @@ const Counter = (state, dispatch) =>
 const initialState = 0;
 
 
-const actionUpdates = {
+const actionUpdates = createUpdater({
   [DECREMENT]: state => state - 1,
   [INCREMENT]: state => state + 1,
-};
+});
 
 
 render(Counter, initialState, actionUpdates, document.getElementById('app'));

@@ -72,8 +72,7 @@ function updateDOM(el, vDOM, nextDOM) {
   return el;
 }
 
-function render(Component, initialState, actionUpdates, el) {
-  const reducer = createUpdater(actionUpdates);
+function render(Component, initialState, updater, el) {
   var state = initialState,
       dispatching,
       dirty = false,
@@ -85,7 +84,7 @@ function render(Component, initialState, actionUpdates, el) {
     }
     try {
       dispatching = action;
-      state = reducer(state, action, payload);
+      state = updater(state, action, payload);
     } finally {
       dispatching = null;
     }
