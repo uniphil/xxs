@@ -23,16 +23,13 @@ const nodeNames = ['a', 'abbr', 'address', 'area', 'article', 'aside', 'audio', 
 const d = nodeNames.map(n => ({ [n]: dFactory(n) })).reduce((a, b) => Object.assign(a, b));
 const t = content => ({ type: 'TextNode', content });
 
-const createUpdater = actionUpdates => (state, action, payload) => {
-  if (typeof actionUpdates[action] === 'function') {
-    return actionUpdates[action](state, payload);
-  } else if (typeof actionUpdates[action] !== 'undefined') {
-    throw new Error(`Expected a function for action ${action.toString()} but ` +
-                    `found '${actionUpdates[action]}.'`);
-  } else {
-    return state;
-  }
-};
+function createUpdater(actionUpdates) {
+  Object.getOwnPropertySymbols(actionUpdates).concat(Object.keys(actionUpdates))
+    .filter(k => typeof actionUpdates[k] !== 'function')
+    .forEach(k => { throw new Error(`Expected a function for action '${k.toString()}' but found '${actionUpdates[k]}'`); });
+  return (state, action, payload) =>
+    (actionUpdates[action] || (x => x))(state, payload);
+}
 
 function updateDOM(el, vDOM, nextDOM) {
   if (nextDOM.type === 'TextNode') {
