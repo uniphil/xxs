@@ -41,10 +41,10 @@ function updateDOM(el, vDOM, nextDOM) {
     Object.keys(nextDOM.attrs).forEach(attr => attr === 'value'
       ? el.value = nextDOM.attrs[attr]
       : el.setAttribute(attr, nextDOM.attrs[attr]));
-    for (let i = 0, oldc, nextc; (oldc = vDOM.children[i]) && (nextc = nextDOM.children[i]); i++) {
+    for (var i = 0, oldc, nextc; (oldc = vDOM.children[i]) && (nextc = nextDOM.children[i]); i++) {
       updateDOM(el.childNodes[i], oldc, nextc);
     }
-    for (let i = vDOM.children.length, nextc; nextc = nextDOM.children[i]; i++) {
+    for (var i = vDOM.children.length, nextc; nextc = nextDOM.children[i]; i++) {
       if (nextc.type === 'TextNode') {
         el.appendChild(document.createTextNode(nextc.content));
       } else {
@@ -52,7 +52,7 @@ function updateDOM(el, vDOM, nextDOM) {
         updateDOM(el.lastChild, dFactory(nextc.tagName)(), nextc);
       }
     }
-    for (let i = nextDOM.children.length; i < vDOM.children.length; i++) {
+    for (var i = nextDOM.children.length; i < vDOM.children.length; i++) {
       el.removeChild(el.lastChild);
     }
   } else {
@@ -63,7 +63,7 @@ function updateDOM(el, vDOM, nextDOM) {
 
 function render(Component, initialState, actionUpdates, el) {
   const reducer = createUpdater(actionUpdates);
-  let state = initialState,
+  var state = initialState,
       vDOM = dFactory('')();
 
   const dispatch = (action, payload) => {
