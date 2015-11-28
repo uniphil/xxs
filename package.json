@@ -1,0 +1,31 @@
+{
+  "name": "xxs",
+  "version": "0.0.1",
+  "description": "sort of like react or elm but worse and extra-extra-small",
+  "main": "recoil.js",
+  "directories": {
+    "example": "examples"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uniphil/xxs.git"
+  },
+  "keywords": [
+    "tiny",
+    "framework",
+    "react",
+    "elm",
+    "prototype"
+  ],
+  "author": "uniphil",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/uniphil/xxs/issues"
+  },
+  "homepage": "https://github.com/uniphil/xxs#readme"
+}
