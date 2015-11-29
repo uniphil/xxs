@@ -26,9 +26,11 @@ const d = nodeNames.map(n => ({ [n]: dFactory(n) })).reduce((a, b) => Object.ass
 const t = content => ({ type: 'TextNode', content });
 
 function createUpdater(actionUpdates) {
-  Object.getOwnPropertySymbols(actionUpdates).concat(Object.keys(actionUpdates))
-    .filter(k => typeof actionUpdates[k] !== 'function')
-    .forEach(k => { throw new Error(`Expected a function for action '${k.toString()}' but found '${actionUpdates[k].toString()}'`); });
+  if (process.env.NODE_ENV !== 'production') {
+    Object.getOwnPropertySymbols(actionUpdates).concat(Object.keys(actionUpdates))
+      .filter(k => typeof actionUpdates[k] !== 'function')
+      .forEach(k => { throw new Error(`Expected a function for action '${k.toString()}' but found '${actionUpdates[k].toString()}'`); });
+  }
   return (state, action, payload) =>
     (actionUpdates[action] || (x => x))(state, payload);
 }

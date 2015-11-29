@@ -133,11 +133,13 @@ var t = function t(content) {
 };
 
 function createUpdater(actionUpdates) {
-  Object.getOwnPropertySymbols(actionUpdates).concat(Object.keys(actionUpdates)).filter(function (k) {
-    return typeof actionUpdates[k] !== 'function';
-  }).forEach(function (k) {
-    throw new Error('Expected a function for action \'' + k.toString() + '\' but found \'' + actionUpdates[k].toString() + '\'');
-  });
+  if (process.env.NODE_ENV !== 'production') {
+    Object.getOwnPropertySymbols(actionUpdates).concat(Object.keys(actionUpdates)).filter(function (k) {
+      return typeof actionUpdates[k] !== 'function';
+    }).forEach(function (k) {
+      throw new Error('Expected a function for action \'' + k.toString() + '\' but found \'' + actionUpdates[k].toString() + '\'');
+    });
+  }
   return function (state, action, payload) {
     return (actionUpdates[action] || function (x) {
       return x;
