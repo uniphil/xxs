@@ -137,9 +137,7 @@ function createUpdater(actionUpdates) {
     });
   }
   return function (state, action, payload) {
-    return (actionUpdates[action] || function (x) {
-      return x;
-    })(state, payload);
+    return actionUpdates[action] ? actionUpdates[action](state, payload) : state;
   };
 }
 
@@ -165,21 +163,23 @@ function updateDOM(el, vDOM, nextDOM) {
     Object.keys(nextDOM.attrs).forEach(function (attr) {
       return attr === 'value' ? el.value = nextDOM.attrs[attr] : el.setAttribute(attr, nextDOM.attrs[attr]);
     });
-    for (var i = 0, oldc, nextc; (oldc = vDOM.children[i]) && (nextc = nextDOM.children[i]); i++) {
-      updateDOM(el.childNodes[i], oldc, nextc);
+    var vDOMChildren = vDOM.children;
+    var nextDOMChildren = nextDOM.children;
+    for (var i = 0; i < vDOMChildren.length && i < nextDOMChildren.length; i++) {
+      updateDOM(el.childNodes[i], vDOMChildren[i], nextDOMChildren[i]);
     }
-    for (var i = vDOM.children.length; i < nextDOM.children.length; i++) {
-      var _nextc = nextDOM.children[i];
-      if (_nextc.type === 'TextNode') {
-        el.appendChild(document.createTextNode(_nextc.content));
-      } else if (_nextc.type === 'DOMNode') {
-        el.appendChild(document.createElement(_nextc.tagName));
-        updateDOM(el.lastChild, dFactory(_nextc.tagName)(), _nextc);
+    for (var i = vDOMChildren.length; i < nextDOMChildren.length; i++) {
+      var nextc = nextDOMChildren[i];
+      if (nextc.type === 'TextNode') {
+        el.appendChild(document.createTextNode(nextc.content));
+      } else if (nextc.type === 'DOMNode') {
+        el.appendChild(document.createElement(nextc.tagName));
+        updateDOM(el.lastChild, dFactory(nextc.tagName)(), nextc);
       } else if (process.env.NODE_ENV !== 'production') {
-        throw new Error('Unknown node type for node: ' + JSON.stringify(_nextc));
+        throw new Error('Unknown node type for node: ' + JSON.stringify(nextc));
       }
     }
-    for (var i = nextDOM.children.length; i < vDOM.children.length; i++) {
+    for (var i = nextDOMChildren.length; i < vDOMChildren.length; i++) {
       el.removeChild(el.lastChild);
     }
   } else if (process.env.NODE_ENV !== 'production') {

@@ -27,7 +27,7 @@
   },
   "scripts": {
     "build:universal": "browserify xxs.js -U > xxs.universal.js",
-    "build:tiny": "cat xxs.js | NODE_ENV=production babel --presets es2015 --plugins transform-node-env-inline | uglifyjs -c -m > xxs.tiny.js",
+    "build:tiny": "cat xxs.js | NODE_ENV=production babel --presets es2015 --plugins transform-node-env-inline | uglifyjs -c -m -w > xxs.tiny.js",
     "build": "npm run build:universal && npm run build:tiny",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
