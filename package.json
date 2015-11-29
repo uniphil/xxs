@@ -23,11 +23,11 @@
     "babel-plugin-transform-node-env-inline": "^6.1.18",
     "babelify": "^7.2.0",
     "browserify": "^12.0.1",
-    "uglifyjs": "^2.4.10"
+    "uglify-js": "^2.6.1"
   },
   "scripts": {
     "build:universal": "browserify xxs.js -U > xxs.universal.js",
-    "build:tiny": "cat xxs.js | NODE_ENV=production babel --presets es2015 --plugins transform-node-env-inline | uglifyjs -c -m -w > xxs.tiny.js",
+    "build:tiny": "cat xxs.js | NODE_ENV=production babel --presets es2015 --plugins transform-node-env-inline | uglifyjs --wrap -c pure_getters --pure-funcs=dFactory -m > xxs.tiny.js",
     "build": "npm run build:universal && npm run build:tiny",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
