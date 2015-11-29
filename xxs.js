@@ -81,7 +81,7 @@ function createUpdater(actionUpdates) {
 function updateDOM(el, vDOM, nextDOM) {
   // Ensure our next vDOMNode is of a valid type
   if (process.env.NODE_ENV !== 'production' &&
-      !(nextDOM.type in ['DOMNode', 'TextNode'])) {
+      !(nextDOM.type in { DOMNode:0, TextNode:0 })) {
     throw new Error(`Unknown vDOMNode.type for ${JSON.stringify(nextDOM)}`);
   }
 
@@ -178,5 +178,3 @@ function render(Component, initialState, updater, el) {
   // kick it off!
   dispatch();
 }
-
-module.exports = { d, t, createUpdater, render };

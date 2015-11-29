@@ -1,16 +1,20 @@
+const div = xxs.d.div;
+const button = xxs.d.button;
+const t = xxs.t;
+
 const DECREMENT = Symbol('DECREMENT');
 const INCREMENT = Symbol('INCREMENT');
 
 
 const Counter = (state, dispatch) =>
-  d.div({}, [
-    d.button({
+  div({}, [
+    button({
       events: {
         click: () => dispatch(DECREMENT),
       },
     }, [t('-')]),
     t(state),
-    d.button({
+    button({
       events: {
         click: () => dispatch(INCREMENT),
       },
@@ -21,10 +25,10 @@ const Counter = (state, dispatch) =>
 const initialState = 0;
 
 
-const actionUpdates = createUpdater({
+const actionUpdates = xxs.createUpdater({
   [DECREMENT]: state => state - 1,
   [INCREMENT]: state => state + 1,
 });
 
 
-render(Counter, initialState, actionUpdates, document.getElementById('app'));
+xxs.render(Counter, initialState, actionUpdates, document.getElementById('app'));
