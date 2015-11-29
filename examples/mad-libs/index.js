@@ -1,5 +1,17 @@
 'use strict';
 
+const t = xxs.t;
+const button = xxs.d.button;
+const div = xxs.d.div;
+const form = xxs.d.form;
+const h1 = xxs.d.h1;
+const h2 = xxs.d.h2;
+const input = xxs.d.input;
+const label = xxs.d.label;
+const p = xxs.d.p;
+const strong = xxs.d.strong;
+
+
 const stories = [
   {
     title: 'Tales of Space and Time',
@@ -62,14 +74,14 @@ const wordEntryActions = {
 
 
 const WordEntry = (state, dispatch) =>
-  d.form({ events: {
+  form({ events: {
     submit: e => {
       e.preventDefault();
       dispatch(wordEntryActions.SUBMIT);
     },
   } }, [
-    d.label({ attrs: { 'for': state.type } }, [t(state.type)]),
-    d.input({ attrs: {
+    label({ attrs: { 'for': state.type } }, [t(state.type)]),
+    input({ attrs: {
       id: state.type,
       placeholder: state.hint,
       type: 'text',
@@ -80,15 +92,15 @@ const WordEntry = (state, dispatch) =>
       input: e => dispatch(wordEntryActions.CHANGE, e.target.value),
     } }),
     state.focused || state.currentValue.length > 0
-      ? d.button({ attrs: state.currentValue.length === 0
+      ? button({ attrs: state.currentValue.length === 0
           ? { type: 'submit', disabled: true }
           : { type: 'submit' }
         }, [
-          d.strong({}, [t('Add')]),
+          strong({}, [t('Add')]),
           t(` (${state.needed - state.collected.length} left)`),
         ])
-      : d.button({ attrs: { disabled: true } }, [
-          d.strong({}, [t('⬅ type a word')])
+      : button({ attrs: { disabled: true } }, [
+          strong({}, [t('⬅ type a word')])
         ])
   ]);
 
@@ -97,11 +109,11 @@ const WordTypeEntry = (state, dispatch) => {
   if (state.needed === 0) {
     return t('');
   } else {
-    return d.div({ attrs: {
+    return div({ attrs: {
         'class': 'word-entry',
       }}, [
         wordTypeReady(state)
-          ? d.p({}, [t(`✓ ${state.type}s completed!`)])
+          ? p({}, [t(`✓ ${state.type}s completed!`)])
           : WordEntry(state, dispatch)
       ]);
   }
@@ -118,7 +130,7 @@ const getWordEntryInit = (type, hint, needed) => ({
 });
 
 
-const wordEntryUpdates = createUpdater({
+const wordEntryUpdates = xxs.createUpdater({
   [wordEntryActions.SUBMIT]: state =>
     o.update(state, {
       collected: state.collected.concat([state.currentValue]),
@@ -147,25 +159,25 @@ const MadLib = (state, dispatch) => {
           adverbs = state.wordTypes[1].collected,
           nouns = state.wordTypes[2].collected,
           adjectives = state.wordTypes[3].collected;
-    return d.div({}, [
-      d.h1({}, [t(state.title)]),
-      d.h2({}, [t(`by ${state.author}`)]),
-      d.p({ attrs: { 'class': 'story' }}, [
+    return div({}, [
+      h1({}, [t(state.title)]),
+      h2({}, [t(`by ${state.author}`)]),
+      p({ attrs: { 'class': 'story' }}, [
         t(state.print(
           state.wordTypes[0].collected,
           state.wordTypes[1].collected,
           state.wordTypes[2].collected,
           state.wordTypes[3].collected)) ]),
-      d.button({ attrs: {
+      button({ attrs: {
         'class': 'again',
       }, events: {
         click: () => dispatch(madlibActions.RESET)
       } }, [t('New Mad Lib!')]),
     ]);
   } else {
-    return d.div({}, [
-      d.h1({}, [t('Mad Libs')]),
-      d.div({}, state.wordTypes.map((entryState, i) =>
+    return div({}, [
+      h1({}, [t('Mad Libs')]),
+      div({}, state.wordTypes.map((entryState, i) =>
         WordTypeEntry(entryState, (action, payload) =>
           dispatch(madlibActions.ENTRY_ACTION, { action, payload, i })))),
     ]);
@@ -190,7 +202,7 @@ const getMadInit = () => {
   };
 };
 
-const madUpdates = createUpdater({
+const madUpdates = xxs.createUpdater({
   [madlibActions.RESET]: () => getMadInit(),
   [madlibActions.ENTRY_ACTION]: (state, payload) =>
     o.set(state, 'wordTypes',
@@ -199,4 +211,4 @@ const madUpdates = createUpdater({
 });
 
 
-render(MadLib, getMadInit(), madUpdates, document.getElementById('app'));
+xxs.render(MadLib, getMadInit(), madUpdates, document.getElementById('app'));
