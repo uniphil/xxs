@@ -2,7 +2,7 @@
   "name": "xxs",
   "version": "0.0.1",
   "description": "sort of like react or elm but worse and extra-extra-small",
-  "main": "recoil.js",
+  "main": "xxs.js",
   "directories": {
     "example": "examples"
   },
