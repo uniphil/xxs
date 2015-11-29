@@ -1,14 +1,16 @@
 'use strict';
 
 const dFactory = name => (props, children) => {
-  if (props && Array.isArray(props)) {
-    throw new Error(`Expected an Object for props but found an Array: '${JSON.stringify(props)}'\nDid you forget to put an empty '{}' for props before the child array?`);
-  }
-  if (props && Object.keys(props).some(k => ['events', 'attrs'].indexOf(k) === -1)) {
-    throw new Error(`Invalid key found in props {${Object.keys(props).join(': ..., ')}: ...} for DOMNode '${name}'\nOnly 'attrs' and 'events' are allowed -- did you forget to nest your attribute or event inside one of those?`);
-  }
-  if (children && !Array.isArray(children)) {
-    throw new Error(`Expected an Array for children but found ${JSON.stringify(children)}`);
+  if (process.env.NODE_ENV !== 'production') {
+    if (props && Array.isArray(props)) {
+      throw new Error(`Expected an Object for props but found an Array: '${JSON.stringify(props)}'\nDid you forget to put an empty '{}' for props before the child array?`);
+    }
+    if (props && Object.keys(props).some(k => ['events', 'attrs'].indexOf(k) === -1)) {
+      throw new Error(`Invalid key found in props {${Object.keys(props).join(': ..., ')}: ...} for DOMNode '${name}'\nOnly 'attrs' and 'events' are allowed -- did you forget to nest your attribute or event inside one of those?`);
+    }
+    if (children && !Array.isArray(children)) {
+      throw new Error(`Expected an Array for children but found ${JSON.stringify(children)}`);
+    }
   }
   return {
     type: 'DOMNode',
@@ -59,14 +61,14 @@ function updateDOM(el, vDOM, nextDOM) {
       } else if (nextc.type === 'DOMNode') {
         el.appendChild(document.createElement(nextc.tagName));
         updateDOM(el.lastChild, dFactory(nextc.tagName)(), nextc);
-      } else {
+      } else if (process.env.NODE_ENV !== 'production') {
         throw new Error(`Unknown node type for node: ${JSON.stringify(nextc)}`);
       }
     }
     for (var i = nextDOM.children.length; i < vDOM.children.length; i++) {
       el.removeChild(el.lastChild);
     }
-  } else {
+  } else if (process.env.NODE_ENV !== 'production') {
     throw new Error(`Unknown tree type for ${JSON.stringify(nextDOM)}`);
   }
   return el;
@@ -79,7 +81,7 @@ function render(Component, initialState, updater, el) {
       vDOM = dFactory(el.tagName)();
 
   const dispatch = (function dispatch(action, payload) {
-    if (dispatching) {
+    if (process.env.NODE_ENV !== 'production' && dispatching) {
       throw new Error(`'${action.toString()}' was dispatched while '${dispatching.toString()}' was still updating. Updaters should be pure functions and must not dispatch actions.`);
     }
     try {
