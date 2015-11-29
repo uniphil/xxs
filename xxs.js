@@ -104,3 +104,5 @@ function render(Component, initialState, updater, el) {
     });
   };
 }
+
+module.exports = { d, t, createUpdater, render };

@@ -2,13 +2,32 @@
   "name": "xxs",
   "version": "0.0.1",
   "description": "sort of like react or elm but worse and extra-extra-small",
-  "main": "xxs.js",
+  "main": "xxs.universal.js",
   "directories": {
     "example": "examples"
   },
+  "browserify": {
+    "transform": [
+      [
+        "babelify",
+        {
+          "presets": [
+            "es2015"
+          ]
+        }
+      ]
+    ]
+  },
   "dependencies": {},
-  "devDependencies": {},
+  "devDependencies": {
+    "babelify": "^7.2.0",
+    "browserify": "^12.0.1",
+    "uglifyjs": "^2.4.10"
+  },
   "scripts": {
+    "build:universal": "browserify xxs.js -U > xxs.universal.js",
+    "build:tiny": "cat xxs.js | babel --presets es2015 | uglifyjs -c -m > xxs.tiny.js",
+    "build": "npm run build:universal && npm run build:tiny",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
