@@ -6,7 +6,9 @@ Just what the world needs, another javascript framework.
 ## Hello world
 
 ```js
-import { d: { div, button }, t, createUpdater, render } from 'xxs';
+import { d, t, createUpdater, render } from 'xxs';
+const div = d('div');
+const button = d('button');
 
 const INCREMENT = Symbol('INCREMENT');
 

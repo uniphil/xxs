@@ -1,15 +1,16 @@
 'use strict';
 
 const t = xxs.t;
-const button = xxs.d.button;
-const div = xxs.d.div;
-const form = xxs.d.form;
-const h1 = xxs.d.h1;
-const h2 = xxs.d.h2;
-const input = xxs.d.input;
-const label = xxs.d.label;
-const p = xxs.d.p;
-const strong = xxs.d.strong;
+const d = xxs.d;
+const button = d('button');
+const div = d('div');
+const form = d('form');
+const h1 = d('h1');
+const h2 = d('h2');
+const input = d('input');
+const label = d('label');
+const p = d('p');
+const strong = d('strong');
 
 
 const stories = [

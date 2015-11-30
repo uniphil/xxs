@@ -1,6 +1,6 @@
-const div = xxs.d.div;
-const button = xxs.d.button;
 const t = xxs.t;
+const div = xxs.d('div');
+const button = xxs.d('button');
 
 const DECREMENT = Symbol('DECREMENT');
 const INCREMENT = Symbol('INCREMENT');
