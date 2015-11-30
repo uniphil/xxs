@@ -211,4 +211,4 @@ const madUpdates = xxs.createUpdater({
 });
 
 
-xxs.render(MadLib, getMadInit(), madUpdates, document.getElementById('app'));
+xxs.render(MadLib, getMadInit(), madUpdates, document.getElementById('app'), true);

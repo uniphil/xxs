@@ -95,15 +95,21 @@ function updateDOM(el, vDOM, nextDOM) {
       vDOM = domFactory(nextDOM.tagName)();
     }
 
-    // brute-force remove/add all attributes and event listeners
+    // brute-force remove/add all event listeners
     Object.keys(vDOM.events).forEach(evt => el.removeEventListener(evt, vDOM.events[evt]));
     Object.keys(nextDOM.events).forEach(evt => el.addEventListener(evt, nextDOM.events[evt]));
-    Object.keys(vDOM.attrs).forEach(attr => attr === 'value'
-      ? el.value = ''  // value is special and must be assigned directly
-      : el.removeAttribute(attr));
-    Object.keys(nextDOM.attrs).forEach(attr => attr === 'value'
-      ? el.value = nextDOM.attrs[attr]
-      : el.setAttribute(attr, nextDOM.attrs[attr]));
+    // actually diff the attributes because otherwise there are weird side-effects in FF :(
+    Object.keys(vDOM.attrs)
+      .filter(attr => !(attr in nextDOM.attrs))
+      .forEach(attr => el.removeAttribute(attr));  // .value is a silent failure we can ignore
+    Object.keys(nextDOM.attrs)
+      .filter(attr => attr !== 'value')
+      .filter(attr => nextDOM.attrs[attr] !== vDOM.attrs[attr])
+      .forEach(attr => el.setAttribute(attr, nextDOM.attrs[attr]));
+    if (nextDOM.attrs.hasOwnProperty('value') &&
+        nextDOM.attrs.value !== el.value) {
+      el.value = nextDOM.attrs.value;
+    }
 
     // Update children in place
     for (var i = 0; i < vDOM.children.length && i < nextDOM.children.length; i++) {
@@ -135,7 +141,7 @@ function updateDOM(el, vDOM, nextDOM) {
  * @param {function} updater ((state, action, payload) => nextState)
  * @returns {void}
  */
-function render(Component, initialState, updater, el) {
+function render(Component, initialState, updater, el, debug) {
   var state = initialState,
       dispatching,  // guard against updaters trying to dispatch
       dirty = false,  // guard against queuing more RAFs when one is already queued
@@ -153,6 +159,9 @@ function render(Component, initialState, updater, el) {
     try {
       dispatching = action;
       state = updater(state, action, payload);
+      if (process.env.NODE_ENV !== 'production' && debug) {
+        console.info(state);
+      }
     } finally {
       dispatching = null;
     }

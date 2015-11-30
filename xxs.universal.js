@@ -66,12 +66,21 @@
       Object.keys(nextDOM.events).forEach(function(evt) {
         return el.addEventListener(evt, nextDOM.events[evt]);
       });
-      Object.keys(vDOM.attrs).forEach(function(attr) {
-        return attr === 'value' ? el.value = '' : el.removeAttribute(attr);
+      Object.keys(vDOM.attrs).filter(function(attr) {
+        return !(attr in nextDOM.attrs);
+      }).forEach(function(attr) {
+        return el.removeAttribute(attr);
       });
-      Object.keys(nextDOM.attrs).forEach(function(attr) {
-        return attr === 'value' ? el.value = nextDOM.attrs[attr] : el.setAttribute(attr, nextDOM.attrs[attr]);
+      Object.keys(nextDOM.attrs).filter(function(attr) {
+        return attr !== 'value';
+      }).filter(function(attr) {
+        return nextDOM.attrs[attr] !== vDOM.attrs[attr];
+      }).forEach(function(attr) {
+        return el.setAttribute(attr, nextDOM.attrs[attr]);
       });
+      if (nextDOM.attrs.hasOwnProperty('value') && nextDOM.attrs.value !== el.value) {
+        el.value = nextDOM.attrs.value;
+      }
       for (var i = 0; i < vDOM.children.length && i < nextDOM.children.length; i++) {
         updateDOM(el.childNodes[i], vDOM.children[i], nextDOM.children[i]);
       }
@@ -92,7 +101,7 @@
     }
     return el;
   }
-  function render(Component, initialState, updater, el) {
+  function render(Component, initialState, updater, el, debug) {
     var state = initialState, dispatching, dirty = false, vDOM = domFactory(el.tagName)();
     function dispatch(action, payload) {
       if (true && dispatching) {
@@ -101,6 +110,9 @@
       try {
         dispatching = action;
         state = updater(state, action, payload);
+        if (true && debug) {
+          console.info(state);
+        }
       } finally {
         dispatching = null;
       }
