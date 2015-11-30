@@ -91,7 +91,9 @@ function updateDOM(el, vDOM, nextDOM) {
   } else {
     if (vDOM.type !== 'DOMNode' || ( vDOM.tagName !== nextDOM.tagName )) {
       // if we have a different kind of node, remove the old and empty vDOM's spec
-      el.parentElement.replaceChild(el = document.createElement(nextDOM.tagName), el);
+      const nextEl = document.createElement(nextDOM.tagName);
+      el.parentElement.replaceChild(nextEl, el);
+      el = nextEl;
       vDOM = domFactory(nextDOM.tagName)();
     }
 

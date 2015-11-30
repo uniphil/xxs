@@ -57,7 +57,9 @@
       el.parentElement.replaceChild(document.createTextNode(nextDOM.content), el);
     } else {
       if (vDOM.type !== 'DOMNode' || vDOM.tagName !== nextDOM.tagName) {
-        el.parentElement.replaceChild(el = document.createElement(nextDOM.tagName), el);
+        var nextEl = document.createElement(nextDOM.tagName);
+        el.parentElement.replaceChild(nextEl, el);
+        el = nextEl;
         vDOM = domFactory(nextDOM.tagName)();
       }
       Object.keys(vDOM.events).forEach(function(evt) {
