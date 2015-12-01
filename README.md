@@ -8,7 +8,7 @@ Just what the world needs, another javascript framework.
 ```js
 import { d, t, createUpdater, render } from 'xxs';
 const div = d('div');
-const button = d('button'
+const button = d('button');
 
 const INCREMENT = Symbol('INCREMENT');
 
