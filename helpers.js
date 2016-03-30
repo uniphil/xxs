@@ -15,4 +15,9 @@ const o = {
   set(obj, key, val) {
     return o.update(obj, { [key]: val });
   },
+  del(obj, key) {
+    const o = Object.assign({}, obj);
+    delete o[key];
+    return o;
+  }
 };

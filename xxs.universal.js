@@ -1,6 +1,11 @@
 (function(exports, global) {
   'use strict';
-  var d = function d(name) {
+  Object.defineProperty(exports, '__esModule', {
+    value: true
+  });
+  exports.createUpdater = createUpdater;
+  exports.render = render;
+  var d = exports.d = function d(name) {
     return function(props, children) {
       if (true) {
         if (props && Array.isArray(props)) {
@@ -24,7 +29,7 @@
       };
     };
   };
-  var t = function t(content) {
+  var t = exports.t = function t(content) {
     return {
       type: 'TextNode',
       content: content
@@ -101,6 +106,11 @@
   }
   function render(Component, initialState, updater, el, debug) {
     var state = initialState, dispatching, dirty = false, vDOM = d(el.tagName)();
+    window.addEventListener('popstate', function(s) {
+      console.log('popped', s);
+      state = s.state;
+      updateUI();
+    });
     function dispatch(action, payload) {
       if (true && dispatching) {
         throw new Error('\'' + action.toString() + '\' was dispatched while \'' + dispatching.toString() + '\' was still updating. Updaters should be pure functions and must not dispatch actions.');
@@ -108,6 +118,7 @@
       try {
         dispatching = action;
         state = updater(state, action, payload);
+        history.pushState(state, 'blah');
         if (true && debug) {
           console.info(state);
         }

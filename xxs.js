@@ -12,7 +12,7 @@
  *   Virtual DOM nodes like those returned by this function
  * @returns {object} A Virtual DOM node specifying this node
  */
-const d = name => (props, children) => {
+export const d = name => (props, children) => {
   if (process.env.NODE_ENV !== 'production') {
     // it's easy to forget an empty {} if no props are needed
     if (props && Array.isArray(props)) {
@@ -41,7 +41,7 @@ const d = name => (props, children) => {
  * @param {string} content The content of the TextNode
  * @returns {object} A Virtual DOM text node
  */
-const t = content => ({ type: 'TextNode', content });
+export const t = content => ({ type: 'TextNode', content });
 
 /**
  * A helper to generate updater functions mapped by action
@@ -49,7 +49,7 @@ const t = content => ({ type: 'TextNode', content });
  *   keys and ((state, payload) => nextState) functions as values
  * @returns {function} An updater function ((state, action, payload) => nextState)
  */
-function createUpdater(actionUpdates) {
+export function createUpdater(actionUpdates) {
   if (process.env.NODE_ENV !== 'production') {
     // Ensure that all values are functions
     Object.getOwnPropertySymbols(actionUpdates).concat(Object.keys(actionUpdates))
@@ -137,13 +137,16 @@ function updateDOM(el, vDOM, nextDOM) {
  * @param {function} Component ((state, dispatch) => vDOMNode)
  * @param {any} initialState The first state to render Component with
  * @param {function} updater ((state, action, payload) => nextState)
+ * @param {Element} el The DOM node to mount the app at
+ * @param {func[]} middlewares next => (state, action, payload) => state
  * @returns {void}
  */
-function render(Component, initialState, updater, el, debug) {
+export function render(Component, initialState, updater, el, middlewares = []) {
   var state = initialState,
       dispatching,  // guard against updaters trying to dispatch
       dirty = false,  // guard against queuing more RAFs when one is already queued
       vDOM = d(el.tagName)();  // dummy spec for the node we're attaching to
+  const mwUpdater = middlewares.reduceRight((next, mw) => mw(next), updater);
 
   /**
    * @param {Symbol|string} action? The action to dispatch (or undefined to force a render)
@@ -151,15 +154,14 @@ function render(Component, initialState, updater, el, debug) {
    * @returns {void}
    */
   function dispatch(action, payload) {
+    console.info(action);
     if (process.env.NODE_ENV !== 'production' && dispatching) {
       throw new Error(`'${action.toString()}' was dispatched while '${dispatching.toString()}' was still updating. Updaters should be pure functions and must not dispatch actions.`);
     }
     try {
       dispatching = action;
-      state = updater(state, action, payload);
-      if (process.env.NODE_ENV !== 'production' && debug) {
-        console.info(state);
-      }
+      state = mwUpdater(state, action, payload);
+      console.info('>', state);
     } finally {
       dispatching = null;
     }
@@ -184,4 +186,8 @@ function render(Component, initialState, updater, el, debug) {
 
   // kick it off!
   dispatch();
+
+  // give back a dispatch ref, so we can hook things up to make actions outside
+  // of components
+  return dispatch;
 }

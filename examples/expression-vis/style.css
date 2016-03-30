@@ -1,0 +1,63 @@
+html, body {
+  background: #444;
+  color: #ccc;
+  font-family: monospace;
+  font-size: 18px;
+  margin: 0;
+  padding: 0;
+}
+html {
+  height: 100%;
+}
+body {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  min-height: 100%;
+}
+
+button,
+input {
+  background: #222;
+  border: 1px solid #666;
+  border-radius: 3px;
+  color: inherit;
+  font: inherit;
+  padding: 0.2em 0.5em;
+}
+
+.bar {
+  align-items: flex-end;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.333);
+  display: flex;
+  width: -moz-min-content;
+  white-space: pre;
+}
+
+.name {
+  align-items: center;
+  border-bottom: 1px solid #666;
+  display: flex;
+  padding: 0.667em 0;
+}
+.name:first-child {
+  border-top: 1px solid #666;
+  margin-top: 1em;
+}
+
+.name .value-label {
+  font-weight: bold;
+  padding-right: 1em;
+}
+
+.name .constant.value {
+  width: 5em;
+}
+
+.name .min-max-label {
+  display: none;
+}
+.name .min,
+.name .max {
+  width: 3em;
+}
