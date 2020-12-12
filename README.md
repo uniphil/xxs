@@ -1,3 +1,8 @@
+## Project status: finished ✨
+
+No updates expected. Not expected for production use. I still drop `xss.js` into little web experiments and find it handy! Have fun with it if you like, but don't take it too seriously please.
+
+
 # Extra-extra-small
 
 Just what the world needs, another javascript framework.
